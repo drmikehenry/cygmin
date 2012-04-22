@@ -105,6 +105,7 @@ DEFAULT_EXTRA_PACKAGES = """
     libncursesw-devel
     libxml2
     make
+    makedepend
     mercurial
     ncurses
     netcat
