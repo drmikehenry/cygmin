@@ -69,14 +69,29 @@ To download the desired subset of Cygwin and create cygmin-yyyy-mm-dd.zip:
 - Upon completion, cygmin will create cygmin-yyyy-mm-dd.zip containing
   the downloaded packages and setup.exe.
 
+For more options, run "cygmin.py --help".
+
 On future runs of cygmin.py, additional packages may be selected for download.
 If the cygmin-tmp directory has not been deleted, only the newly selected
 packages will be downloaded, but all downloaded packages will be included in
 the archive.
 
+If the --package-file option de-selects a previously downloaded package, the
+generated archive will still contain that package until it is manually pruned
+from cygmin-tmp.
+
 The following extra packages were selected when this README was generated:
 
 """
+
+
+def getReadmeText(extraPackages):
+    if extraPackages:
+        packageText = "    " + "\n    ".join(extraPackages)
+    else:
+        packageText = "<none>"
+    return README.lstrip() + packageText + "\n"
+
 
 DEFAULT_EXTRA_PACKAGES = """
     bash-completion
@@ -217,6 +232,11 @@ def parseArgs():
             action="store",
             help="""generate file README""")
 
+    parser.add_option("--mirror", dest="mirror",
+            action="store",
+            default="http://mirror.cs.vt.edu/pub/cygwin/cygwin/",
+            help="""URL of mirror site to use""")
+
     parser.add_option("--package-file", dest="packageFile",
             action="store",
             help="""use PACKAGEFILE to adjust list of extra packages """
@@ -241,7 +261,7 @@ def parseArgs():
 
 def writeReadme(readme, extraPackages):
     with open(readme, "w") as f:
-        f.write(README.lstrip() + "    " + "\n    ".join(extraPackages) + "\n")
+        f.write(getReadmeText(extraPackages))
 
 
 def main():
@@ -250,6 +270,7 @@ def main():
     parser, options, args = parseArgs()
 
     if options.packageFile:
+        notify("Using package-file %s" % options.packageFile)
         with open(options.packageFile) as packFile:
             for line in packFile:
                 package = line.strip()
@@ -258,16 +279,19 @@ def main():
                     package = package[1:]
                     if not package:
                         # Lone "-" on a line; remove all packages.
+                        notify("Removing all extra packages")
                         extraPackages = []
                     else:
                         try:
                             extraPackages.remove(package)
+                            notify("Removing package %s" % package)
                         except ValueError:
                             # OK if package to remove is not present.
                             pass
                 else:
                     if package not in extraPackages:
                         extraPackages.append(package)
+                        notify("Adding package %s" % package)
 
     if options.readme:
         writeReadme(options.readme, extraPackages)
@@ -280,8 +304,7 @@ def main():
 
     setupUrl = "http://cygwin.com/" + SETUP_NAME
     setupPath = pjoin(workDir, SETUP_NAME)
-    mirrorUrl = "http://mirror.cs.vt.edu/pub/cygwin/cygwin/"
-    mirrorDir = pjoin(workDir, urllib2.quote(mirrorUrl))
+    mirrorUrl = options.mirror
 
     scriptSrcPath = sys.argv[0]
     scriptName = os.path.basename(scriptSrcPath)
@@ -289,9 +312,7 @@ def main():
 
     prepareWorkDir(workDir)
     downloadSetup(setupUrl, setupPath)
-    retCode = runSetup(workDir, setupPath, mirrorUrl, DEFAULT_EXTRA_PACKAGES)
-    #retCode = 0
-
+    retCode = runSetup(workDir, setupPath, mirrorUrl, extraPackages)
     notify("\n\nSetup complete.\n")
 
     if retCode == 0:
@@ -310,7 +331,3 @@ if __name__ == '__main__':
         notify("\n** Error: " + str(e))
         sys.exit(1)
 
-'''
-- Perhaps bundle this script in the resulting zipfile.
-
-'''
