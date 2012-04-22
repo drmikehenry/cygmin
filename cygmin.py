@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.1.0"
+__VERSION__ = "0.1.1"
 
 README = """
 
@@ -87,9 +87,9 @@ The following extra packages were selected when this README was generated:
 
 def getReadmeText(extraPackages):
     if extraPackages:
-        packageText = "    " + "\n    ".join(extraPackages)
+        packageText = "- " + "\n- ".join(extraPackages)
     else:
-        packageText = "<none>"
+        packageText = "*none*"
     return README.lstrip() + packageText + "\n"
 
 
