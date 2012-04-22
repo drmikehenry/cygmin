@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.1.1"
+__VERSION__ = "0.1.2"
 
 README = """
 
@@ -101,6 +101,7 @@ DEFAULT_EXTRA_PACKAGES = """
     gcc4
     gdb
     git
+    keychain
     libncurses-devel
     libncursesw-devel
     libxml2

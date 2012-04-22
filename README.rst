@@ -82,6 +82,7 @@ The following extra packages were selected when this README was generated:
 - gcc4
 - gdb
 - git
+- keychain
 - libncurses-devel
 - libncursesw-devel
 - libxml2
