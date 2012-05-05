@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.1.2"
+__VERSION__ = "0.2.0"
 
 README = """
 
@@ -111,6 +111,7 @@ DEFAULT_EXTRA_PACKAGES = """
     ncurses
     netcat
     openssh
+    patchutils
     perl
     python
     rsync
