@@ -53,7 +53,8 @@ To download the desired subset of Cygwin and create cygmin-yyyy-mm-dd.zip:
   Windows explorer, but *not* from within a pre-existing Cygwin installation.
 
 - The Cygwin setup program will launch in "quiet mode", running without
-  the need for user input.
+  the need for user input.  ("Quiet mode" may be disabled via the
+  ``--interactive`` switch.)
 
   Note that a default mirror is chosen for you.  It's permissible to change to
   another mirror, but it is then your responsibility to use the same mirror
@@ -92,6 +93,8 @@ The following extra packages were selected when this README was generated:
 - ncurses
 - netcat
 - openssh
+- p7zip
+- patchutils
 - perl
 - python
 - rsync
@@ -106,3 +109,30 @@ The following extra packages were selected when this README was generated:
 - xterm
 - xxd
 - zip
+
+History
+=======
+
+Version 0.3.0 (2012-05-16)
+--------------------------
+
+- Added "p7zip" package.
+
+- Added "--interactive" switch for running "setup.exe" interactively during
+  download phase.
+
+- Added "--package" switch to allow specification of packages without a
+  separate package file.
+
+- Embedded documentation for "setup.exe" for reference.
+
+Version 0.2.0 (2012-05-05)
+--------------------------
+
+- Added "patchutils" package.
+
+Version 0.1.2 (2012-04-22)
+--------------------------
+
+- Initial release.
+

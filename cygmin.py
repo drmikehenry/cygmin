@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.2.0"
+__VERSION__ = "0.3.0"
 
 README = """
 
@@ -60,7 +60,8 @@ To download the desired subset of Cygwin and create cygmin-yyyy-mm-dd.zip:
   Windows explorer, but *not* from within a pre-existing Cygwin installation.
 
 - The Cygwin setup program will launch in "quiet mode", running without
-  the need for user input.
+  the need for user input.  ("Quiet mode" may be disabled via the
+  ``--interactive`` switch.)
 
   Note that a default mirror is chosen for you.  It's permissible to change to
   another mirror, but it is then your responsibility to use the same mirror
@@ -82,6 +83,34 @@ from cygmin-tmp.
 
 The following extra packages were selected when this README was generated:
 
+__PACKAGES__
+
+History
+=======
+
+Version 0.3.0 (2012-05-16)
+--------------------------
+
+- Added "p7zip" package.
+
+- Added "--interactive" switch for running "setup.exe" interactively during
+  download phase.
+
+- Added "--package" switch to allow specification of packages without a
+  separate package file.
+
+- Embedded documentation for "setup.exe" for reference.
+
+Version 0.2.0 (2012-05-05)
+--------------------------
+
+- Added "patchutils" package.
+
+Version 0.1.2 (2012-04-22)
+--------------------------
+
+- Initial release.
+
 """
 
 
@@ -90,7 +119,7 @@ def getReadmeText(extraPackages):
         packageText = "- " + "\n- ".join(extraPackages)
     else:
         packageText = "*none*"
-    return README.lstrip() + packageText + "\n"
+    return README.lstrip().replace("__PACKAGES__", packageText)
 
 
 DEFAULT_EXTRA_PACKAGES = """
@@ -111,6 +140,7 @@ DEFAULT_EXTRA_PACKAGES = """
     ncurses
     netcat
     openssh
+    p7zip
     patchutils
     perl
     python
@@ -132,6 +162,7 @@ import urllib2
 import datetime
 import os
 import sys
+import re
 import subprocess
 from os.path import join as pjoin
 import zipfile
@@ -139,6 +170,41 @@ import glob
 
 
 SETUP_NAME = "setup.exe"
+
+'''
+- Documentation: http://cygwin.com/
+
+- Cygwin setup.exe command-line options:
+
+Command Line Options::
+
+ -A --disable-buggy-antivirus           Disable known or suspected buggy anti-
+                                        virus software packages during 
+                                        execution.
+ -C --categories                        Specify entire categories to install
+ -D --download                          Download from internet
+ -d --no-desktop                        Disable creation of desktop shortcut
+ -h --help                              print help
+ -K --pubkey                            URL of extra public key file (gpg
+                                        format)
+ -L --local-install                     Install from local directory
+ -l --local-package-dir                 Local package directory
+ -n --no-shortcuts                      Disable creation of desktop and start
+                                        menu shortcuts
+ -N --no-startmenu                      Disable creation of start menu shortcut
+ -O --only-site                         Ignore all sites except for -s
+ -P --packages                          Specify packages to install
+ -p --proxy                             HTTP/FTP proxy (host:port)
+ -q --quiet-mode                        Unattended setup mode
+ -r --no-replaceonreboot                Disable replacing in-use files on next
+                                        reboot.
+ -R --root                              Root installation directory
+ -S --sexpr-pubkey                      Extra public key in s-expr format
+ -s --site                              Download site
+ -U --keep-untrusted-keys               Use untrusted keys and retain all
+ -u --untrusted-keys                    Use untrusted keys from last-extrakeys
+ -X --no-verify                         Don't verify setup.ini signatures
+'''
 
 
 class DownloadError(Exception):
@@ -170,18 +236,20 @@ def prepareWorkDir(workDir):
     makeDirWithParents(workDir)
 
 
-def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[]):
+def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
+        interactive=False):
     notify("Running setup utility")
     args = [os.path.abspath(setupPath),
             "--download",
             "--site=" + mirrorUrl,
             "--local-package-dir=" + os.path.abspath(workDir),
             "--root=" + os.path.abspath(workDir),
-            "--quiet-mode",
             "--no-verify",
             "--no-desktop",
             "--no-shortcuts",
             "--no-startmenu"]
+    if not interactive:
+        args.append("--quiet-mode")
 
     extraPackages = [p for p in extraPackages if not p.startswith("-")]
     if extraPackages:
@@ -240,12 +308,25 @@ def parseArgs():
             default="http://mirror.cs.vt.edu/pub/cygwin/cygwin/",
             help="""URL of mirror site to use""")
 
+    parser.add_option("--package", dest="packages",
+            action="append",
+            metavar="PACKAGE | -PACKAGE",
+            default=[],
+            help="""add or subtract a package """
+                """(leading '-' to remove, bare '-' to remove all).  """
+                """Multiple packages may be separated by spaces or commas, """
+                """as in --package 'package1 package2'""")
+
     parser.add_option("--package-file", dest="packageFile",
             action="store",
             help="""use PACKAGEFILE to adjust list of extra packages """
                 """(one package per line, leading '-' to remove, """
                 """bare '-' to remove all)""")
 
+    parser.add_option("--interactive", dest="interactive",
+            action="store_true", default=False,
+            help="""allow interaction with setup GUI (disables setup.exe's
+                    ``--quiet-mode``)""")
     '''
     parser.add_option("-f", "--flag", dest="flag",
             action="store_true", default=False,
@@ -267,6 +348,27 @@ def writeReadme(readme, extraPackages):
         f.write(getReadmeText(extraPackages))
 
 
+def addPackage(extraPackages, package):
+    if package.startswith("-"):
+        # Removing one or all.
+        package = package[1:]
+        if not package:
+            # Lone "-" on a line; remove all packages.
+            notify("Removing all extra packages")
+            del extraPackages[:]
+        else:
+            try:
+                extraPackages.remove(package)
+                notify("Removing package %s" % package)
+            except ValueError:
+                # OK if package to remove is not present.
+                pass
+    else:
+        if package not in extraPackages:
+            extraPackages.append(package)
+            notify("Adding package %s" % package)
+
+
 def main():
     today = datetime.date.today().isoformat()
     extraPackages = DEFAULT_EXTRA_PACKAGES[:]
@@ -277,24 +379,10 @@ def main():
         with open(options.packageFile) as packFile:
             for line in packFile:
                 package = line.strip()
-                if package.startswith("-"):
-                    # Removing one or all.
-                    package = package[1:]
-                    if not package:
-                        # Lone "-" on a line; remove all packages.
-                        notify("Removing all extra packages")
-                        extraPackages = []
-                    else:
-                        try:
-                            extraPackages.remove(package)
-                            notify("Removing package %s" % package)
-                        except ValueError:
-                            # OK if package to remove is not present.
-                            pass
-                else:
-                    if package not in extraPackages:
-                        extraPackages.append(package)
-                        notify("Adding package %s" % package)
+                addPackage(extraPackages, package)
+    for packageSpec in options.packages:
+        for package in re.split(r"(?:\s+|,)", packageSpec):
+            addPackage(extraPackages, package)
 
     if options.readme:
         writeReadme(options.readme, extraPackages)
@@ -315,7 +403,8 @@ def main():
 
     prepareWorkDir(workDir)
     downloadSetup(setupUrl, setupPath)
-    retCode = runSetup(workDir, setupPath, mirrorUrl, extraPackages)
+    retCode = runSetup(workDir, setupPath, mirrorUrl, extraPackages,
+            options.interactive)
     notify("\n\nSetup complete.\n")
 
     if retCode == 0:
