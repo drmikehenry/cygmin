@@ -36,6 +36,11 @@ To install Cygwin from the cgymin archive:
   "Select Packages" screen; it should now say "All - Install".  Choose "Next".
   (This will install everything in the cygmin archive, not all of Cygwin.)
 
+- If you see a "Resolving Dependencies" dialog that mentions packages selected
+  to meet dependencies, install them as well.  They should be present in the
+  Cygmin archive, and though they've already been marked for installation, for
+  some reason the installer wants extra confirmation.
+
 - When Cygwin Setup completes, the miniature distribution of Cygwin has been
   installed.
 
@@ -105,6 +110,9 @@ The following extra packages were selected when this README was generated:
 - unzip
 - vim
 - wget
+- w32api
+- w32api-headers
+- w32api-runtime
 - w3m
 - xterm
 - xxd
