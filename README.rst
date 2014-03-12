@@ -86,7 +86,8 @@ The following extra packages were selected when this README was generated:
 - ctags
 - curl
 - dos2unix
-- gcc4
+- gcc-core
+- gcc-g++
 - gdb
 - git
 - keychain
@@ -121,6 +122,16 @@ The following extra packages were selected when this README was generated:
 
 History
 =======
+
+Version 0.5.0 (2014-03-12)
+--------------------------
+
+- Add dos2unix.
+
+- Change gcc4 to gcc-core and gcc-g++ (due to package rename).
+
+- Prevent re-launching as administrator, as that causes setup-x86.exe to exit
+  prematurely.
 
 Version 0.3.0 (2012-05-16)
 --------------------------

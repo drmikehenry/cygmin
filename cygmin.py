@@ -93,6 +93,16 @@ __PACKAGES__
 History
 =======
 
+Version 0.5.0 (2014-03-12)
+--------------------------
+
+- Add dos2unix.
+
+- Change gcc4 to gcc-core and gcc-g++ (due to package rename).
+
+- Prevent re-launching as administrator, as that causes setup-x86.exe to exit
+  prematurely.
+
 Version 0.3.0 (2012-05-16)
 --------------------------
 
@@ -133,7 +143,8 @@ DEFAULT_EXTRA_PACKAGES = """
     ctags
     curl
     dos2unix
-    gcc4
+    gcc-core
+    gcc-g++
     gdb
     git
     keychain
@@ -181,38 +192,43 @@ import glob
 SETUP_NAME = "setup-x86.exe"
 
 '''
-- Documentation: http://cygwin.com/
+Starting cygwin install, version 2.844
+User has NO backup/restore rights
 
-- Cygwin setup-x86.exe command-line options:
-
-Command Line Options::
-
- -A --disable-buggy-antivirus           Disable known or suspected buggy anti-
-                                        virus software packages during
-                                        execution.
- -C --categories                        Specify entire categories to install
- -D --download                          Download from internet
- -d --no-desktop                        Disable creation of desktop shortcut
- -h --help                              print help
- -K --pubkey                            URL of extra public key file (gpg
-                                        format)
- -L --local-install                     Install from local directory
- -l --local-package-dir                 Local package directory
- -n --no-shortcuts                      Disable creation of desktop and start
-                                        menu shortcuts
- -N --no-startmenu                      Disable creation of start menu shortcut
- -O --only-site                         Ignore all sites except for -s
- -P --packages                          Specify packages to install
- -p --proxy                             HTTP/FTP proxy (host:port)
- -q --quiet-mode                        Unattended setup mode
- -r --no-replaceonreboot                Disable replacing in-use files on next
-                                        reboot.
- -R --root                              Root installation directory
- -S --sexpr-pubkey                      Extra public key in s-expr format
- -s --site                              Download site
- -U --keep-untrusted-keys               Use untrusted keys and retain all
- -u --untrusted-keys                    Use untrusted keys from last-extrakeys
- -X --no-verify                         Don't verify setup.ini signatures
+Command Line Options:
+ -D --download                     Download from internet
+ -L --local-install                Install from local directory
+ -s --site                         Download site
+ -O --only-site                    Ignore all sites except for -s
+ -R --root                         Root installation directory
+ -x --remove-packages              Specify packages to uninstall
+ -c --remove-categories            Specify categories to uninstall
+ -P --packages                     Specify packages to install
+ -C --categories                   Specify entire categories to install
+ -p --proxy                        HTTP/FTP proxy (host:port)
+ -a --arch                         architecture to install (x86_64 or x86)
+ -q --quiet-mode                   Unattended setup mode
+ -M --package-manager              Semi-attended chooser-only mode
+ -B --no-admin                     Do not check for and enforce running as
+                                   Administrator
+ -h --help                         print help
+ -l --local-package-dir            Local package directory
+ -r --no-replaceonreboot           Disable replacing in-use files on next
+                                   reboot.
+ -X --no-verify                    Don't verify setup.ini signatures
+ -n --no-shortcuts                 Disable creation of desktop and start menu
+                                   shortcuts
+ -N --no-startmenu                 Disable creation of start menu shortcut
+ -d --no-desktop                   Disable creation of desktop shortcut
+ -K --pubkey                       URL of extra public key file (gpg format)
+ -S --sexpr-pubkey                 Extra public key in s-expr format
+ -u --untrusted-keys               Use untrusted keys from last-extrakeys
+ -U --keep-untrusted-keys          Use untrusted keys and retain all
+ -g --upgrade-also                 also upgrade installed packages
+ -o --delete-orphans               remove orphaned packages
+ -A --disable-buggy-antivirus      Disable known or suspected buggy anti virus
+                                   software packages during execution.
+Ending cygwin install
 '''
 
 
