@@ -16,7 +16,7 @@ To install Cygwin from the cgymin archive:
   your local hard drive is recommended for speed).  All archive contents live
   below the directory cygmin-yyyy-mm-dd.
 
-- Run cygmin-yyyy-mm-dd\setup.exe.
+- Run cygmin-yyyy-mm-dd\setup-x86.exe.
 
 - Choose "Next" on the introduction screen.
 
@@ -66,7 +66,7 @@ To download the desired subset of Cygwin and create cygmin-yyyy-mm-dd.zip:
   each time, or to remove the cgymin-tmp directory between runs.
 
 - Upon completion, cygmin will create cygmin-yyyy-mm-dd.zip containing
-  the downloaded packages and setup.exe.
+  the downloaded packages and setup-x86.exe.
 
 For more options, run "cygmin.py --help".
 
@@ -85,6 +85,7 @@ The following extra packages were selected when this README was generated:
 - crypt
 - ctags
 - curl
+- dos2unix
 - gcc4
 - gdb
 - git
@@ -126,13 +127,13 @@ Version 0.3.0 (2012-05-16)
 
 - Added "p7zip" package.
 
-- Added "--interactive" switch for running "setup.exe" interactively during
+- Added "--interactive" switch for running "setup-x86.exe" interactively during
   download phase.
 
 - Added "--package" switch to allow specification of packages without a
   separate package file.
 
-- Embedded documentation for "setup.exe" for reference.
+- Embedded documentation for "setup-x86.exe" for reference.
 
 Version 0.2.0 (2012-05-05)
 --------------------------

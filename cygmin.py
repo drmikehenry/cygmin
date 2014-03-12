@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.4.0"
+__VERSION__ = "0.5.0"
 
 README = """
 
@@ -132,6 +132,7 @@ DEFAULT_EXTRA_PACKAGES = """
     crypt
     ctags
     curl
+    dos2unix
     gcc4
     gdb
     git
@@ -187,7 +188,7 @@ SETUP_NAME = "setup-x86.exe"
 Command Line Options::
 
  -A --disable-buggy-antivirus           Disable known or suspected buggy anti-
-                                        virus software packages during 
+                                        virus software packages during
                                         execution.
  -C --categories                        Specify entire categories to install
  -D --download                          Download from internet
@@ -247,11 +248,15 @@ def prepareWorkDir(workDir):
 def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         interactive=False):
     notify("Running setup utility")
+
+    # Need --no-admin to prevent re-spawning to elevate privileges (since
+    # re-spawning has the side-effect of causing setup.exe to return early).
     args = [os.path.abspath(setupPath),
             "--download",
             "--site=" + mirrorUrl,
             "--local-package-dir=" + os.path.abspath(workDir),
             "--root=" + os.path.abspath(workDir),
+            "--no-admin",
             "--no-verify",
             "--no-desktop",
             "--no-shortcuts",
