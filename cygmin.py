@@ -160,7 +160,7 @@ DEFAULT_EXTRA_PACKAGES = """
     makedepend
     mercurial
     mingw64-i686-gcc
-    mingw64-x86_64
+    mingw64-x86_64-gcc
     nasm
     ncurses
     netcat
