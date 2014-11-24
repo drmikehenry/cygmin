@@ -200,6 +200,9 @@ if sys.version_info.major == 3:
 else:
     from urllib2 import urlopen
 
+needWine = "win32" not in sys.platform.lower()
+
+
 SETUP_NAME = "setup-x86.exe"
 
 '''
@@ -243,8 +246,26 @@ Ending cygwin install
 '''
 
 
-class DownloadError(Exception):
+class CygminError(Exception):
     pass
+
+class DownloadError(CygminError):
+    pass
+
+class SystemConfigurationError(CygminError):
+    pass
+
+
+def programIsOnPath(programName):
+    for path in os.getenv('PATH', "").split(os.path.pathsep):
+        if glob.glob(pjoin(path, programName)):
+            return True
+    return False
+
+
+def ensureWineIsOnPath():
+    if not programIsOnPath('wine'):
+        raise SystemConfigurationError("Wine must be installed to run Cygmin.")
 
 
 def notify(msg):
@@ -275,8 +296,6 @@ def prepareWorkDir(workDir):
 def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         interactive=False):
     notify("Running setup utility")
-
-    needWine = "win32" not in sys.platform.lower()
 
     def abspath(path):
         path = os.path.abspath(path)
@@ -429,6 +448,9 @@ def main():
     extraPackages = DEFAULT_EXTRA_PACKAGES[:]
     parser, options, args = parseArgs()
 
+    if needWine:
+        ensureWineIsOnPath()
+
     if options.packageFile:
         notify("Using package-file %s" % options.packageFile)
         with open(options.packageFile) as packFile:
@@ -474,7 +496,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except DownloadError as e:
+    except CygminError as e:
         notify("\n** Error: " + str(e))
         sys.exit(1)
 
