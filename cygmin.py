@@ -186,7 +186,6 @@ DEFAULT_EXTRA_PACKAGES = """
     zip
     """.split()
 
-import urllib2
 import datetime
 import os
 import sys
@@ -196,6 +195,10 @@ from os.path import join as pjoin
 import zipfile
 import glob
 
+if sys.version_info.major == 3:
+    from urllib.request import urlopen
+else:
+    from urllib2 import urlopen
 
 SETUP_NAME = "setup-x86.exe"
 
@@ -253,7 +256,7 @@ def downloadSetup(setupUrl, setupPath):
         notify("Using existing %s" % setupPath)
     else:
         notify("Downloading %s..." % setupUrl)
-        inFile = urllib2.urlopen(setupUrl)
+        inFile = urlopen(setupUrl)
         outFile = open(setupPath, "wb")
         outFile.write(inFile.read())
         inFile.close()
@@ -456,7 +459,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except DownloadError, e:
+    except DownloadError as e:
         notify("\n** Error: " + str(e))
         sys.exit(1)
 
