@@ -276,13 +276,25 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         interactive=False):
     notify("Running setup utility")
 
+    needWine = "win32" not in sys.platform.lower()
+
+    def abspath(path):
+        path = os.path.abspath(path)
+        if needWine:
+            return subprocess.check_output(["winepath", "-w", path]).strip()
+        else:
+            return path
+
+    setupPath = os.path.abspath(setupPath)
+    workDir = os.path.abspath(workDir)
+
     # Need --no-admin to prevent re-spawning to elevate privileges (since
     # re-spawning has the side-effect of causing setup.exe to return early).
-    args = [os.path.abspath(setupPath),
+    args = [abspath(setupPath),
             "--download",
             "--site=" + mirrorUrl,
-            "--local-package-dir=" + os.path.abspath(workDir),
-            "--root=" + os.path.abspath(workDir),
+            "--local-package-dir=" + abspath(workDir),
+            "--root=" + abspath(workDir),
             "--no-admin",
             "--no-verify",
             "--no-desktop",
@@ -300,7 +312,10 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         batFile.write("@echo off\n")
         batFile.write(" ^\n ".join(args) + "\n")
 
-    retCode = subprocess.call([batPath])
+    cmd = [batPath]
+    if needWine:
+        cmd = ["wine", "cmd", "/c"] + cmd
+    retCode = subprocess.call(cmd)
     return retCode
 
 
