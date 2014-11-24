@@ -97,6 +97,9 @@ The following extra packages were selected when this README was generated:
 - make
 - makedepend
 - mercurial
+- mingw64-i686-gcc
+- mingw64-x86_64
+- nasm
 - ncurses
 - netcat
 - openssh

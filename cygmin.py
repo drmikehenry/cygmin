@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.5.0"
+__VERSION__ = "0.6.0"
 
 README = """
 
@@ -93,6 +93,11 @@ __PACKAGES__
 History
 =======
 
+Version 0.6.0 (2014-11-23)
+--------------------------
+
+- Added mingw64-gcc and nasm packages.
+
 Version 0.5.0 (2014-03-12)
 --------------------------
 
@@ -154,6 +159,9 @@ DEFAULT_EXTRA_PACKAGES = """
     make
     makedepend
     mercurial
+    mingw64-i686-gcc
+    mingw64-x86_64
+    nasm
     ncurses
     netcat
     openssh
