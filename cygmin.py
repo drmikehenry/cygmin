@@ -300,7 +300,10 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
     def abspath(path):
         path = os.path.abspath(path)
         if needWine:
-            return subprocess.check_output(["winepath", "-w", path]).strip()
+            cmd = ["winepath", "-w", path]
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            output = p.communicate()[0]
+            return output.strip()
         else:
             return path
 
