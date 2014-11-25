@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.5.0"
+__VERSION__ = "0.7.0"
 
 README = """
 
@@ -93,6 +93,17 @@ __PACKAGES__
 History
 =======
 
+Version 0.7.0 (2014-11-24)
+--------------------------
+
+- Added support for running on non-Windows PCs using Wine.
+- Gave up pre-Python 2.6 compatibility to support Python 3.
+
+Version 0.6.0 (2014-11-23)
+--------------------------
+
+- Added mingw64-gcc and nasm packages.
+
 Version 0.5.0 (2014-03-12)
 --------------------------
 
@@ -154,6 +165,9 @@ DEFAULT_EXTRA_PACKAGES = """
     make
     makedepend
     mercurial
+    mingw64-i686-gcc
+    mingw64-x86_64-gcc
+    nasm
     ncurses
     netcat
     openssh
@@ -178,7 +192,6 @@ DEFAULT_EXTRA_PACKAGES = """
     zip
     """.split()
 
-import urllib2
 import datetime
 import os
 import sys
@@ -187,6 +200,13 @@ import subprocess
 from os.path import join as pjoin
 import zipfile
 import glob
+
+if sys.version_info.major == 3:
+    from urllib.request import urlopen
+else:
+    from urllib2 import urlopen
+
+needWine = "win32" not in sys.platform.lower()
 
 
 SETUP_NAME = "setup-x86.exe"
@@ -232,8 +252,26 @@ Ending cygwin install
 '''
 
 
-class DownloadError(Exception):
+class CygminError(Exception):
     pass
+
+class DownloadError(CygminError):
+    pass
+
+class SystemConfigurationError(CygminError):
+    pass
+
+
+def programIsOnPath(programName):
+    for path in os.getenv('PATH', "").split(os.path.pathsep):
+        if glob.glob(pjoin(path, programName)):
+            return True
+    return False
+
+
+def ensureWineIsOnPath():
+    if not programIsOnPath('wine'):
+        raise SystemConfigurationError("Wine must be installed to run Cygmin.")
 
 
 def notify(msg):
@@ -245,7 +283,7 @@ def downloadSetup(setupUrl, setupPath):
         notify("Using existing %s" % setupPath)
     else:
         notify("Downloading %s..." % setupUrl)
-        inFile = urllib2.urlopen(setupUrl)
+        inFile = urlopen(setupUrl)
         outFile = open(setupPath, "wb")
         outFile.write(inFile.read())
         inFile.close()
@@ -265,13 +303,26 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         interactive=False):
     notify("Running setup utility")
 
+    def abspath(path):
+        path = os.path.abspath(path)
+        if needWine:
+            cmd = ["winepath", "-w", path]
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            output = p.communicate()[0]
+            return output.strip()
+        else:
+            return path
+
+    setupPath = os.path.abspath(setupPath)
+    workDir = os.path.abspath(workDir)
+
     # Need --no-admin to prevent re-spawning to elevate privileges (since
     # re-spawning has the side-effect of causing setup.exe to return early).
-    args = [os.path.abspath(setupPath),
+    args = [abspath(setupPath),
             "--download",
             "--site=" + mirrorUrl,
-            "--local-package-dir=" + os.path.abspath(workDir),
-            "--root=" + os.path.abspath(workDir),
+            "--local-package-dir=" + abspath(workDir),
+            "--root=" + abspath(workDir),
             "--no-admin",
             "--no-verify",
             "--no-desktop",
@@ -289,7 +340,10 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         batFile.write("@echo off\n")
         batFile.write(" ^\n ".join(args) + "\n")
 
-    retCode = subprocess.call([batPath])
+    cmd = [batPath]
+    if needWine:
+        cmd = ["wine", "cmd", "/c"] + cmd
+    retCode = subprocess.call(cmd)
     return retCode
 
 
@@ -403,6 +457,9 @@ def main():
     extraPackages = DEFAULT_EXTRA_PACKAGES[:]
     parser, options, args = parseArgs()
 
+    if needWine:
+        ensureWineIsOnPath()
+
     if options.packageFile:
         notify("Using package-file %s" % options.packageFile)
         with open(options.packageFile) as packFile:
@@ -448,7 +505,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except DownloadError, e:
+    except CygminError as e:
         notify("\n** Error: " + str(e))
         sys.exit(1)
 
