@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.6.0"
+__VERSION__ = "0.7.0"
 
 README = """
 
@@ -92,6 +92,12 @@ __PACKAGES__
 
 History
 =======
+
+Version 0.7.0 (2014-11-24)
+--------------------------
+
+- Added support for running on non-Windows PCs using Wine.
+- Gave up pre-Python 2.6 compatibility to support Python 3.
 
 Version 0.6.0 (2014-11-23)
 --------------------------

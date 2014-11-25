@@ -98,7 +98,7 @@ The following extra packages were selected when this README was generated:
 - makedepend
 - mercurial
 - mingw64-i686-gcc
-- mingw64-x86_64
+- mingw64-x86_64-gcc
 - nasm
 - ncurses
 - netcat
@@ -125,6 +125,17 @@ The following extra packages were selected when this README was generated:
 
 History
 =======
+
+Version 0.7.0 (2014-11-24)
+--------------------------
+
+- Added support for running on non-Windows PCs using Wine.
+- Gave up pre-Python 2.4 compatibility to support Python 3.
+
+Version 0.6.0 (2014-11-23)
+--------------------------
+
+- Added mingw64-gcc and nasm packages.
 
 Version 0.5.0 (2014-03-12)
 --------------------------
