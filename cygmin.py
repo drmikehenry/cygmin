@@ -267,11 +267,11 @@ def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
 
     # Need --no-admin to prevent re-spawning to elevate privileges (since
     # re-spawning has the side-effect of causing setup.exe to return early).
-    args = [os.path.abspath(setupPath),
+    args = ["\"" + os.path.abspath(setupPath) + "\"",
             "--download",
             "--site=" + mirrorUrl,
-            "--local-package-dir=" + os.path.abspath(workDir),
-            "--root=" + os.path.abspath(workDir),
+            "--local-package-dir=" + "\"" + os.path.abspath(workDir) + "\"",
+            "--root=" + "\"" + os.path.abspath(workDir) + "\"",
             "--no-admin",
             "--no-verify",
             "--no-desktop",
