@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:set fileencoding=utf8: #
 
-__VERSION__ = "0.5.0"
+__VERSION__ = "0.5.1"
 
 README = """
 
@@ -261,17 +261,21 @@ def prepareWorkDir(workDir):
     makeDirWithParents(workDir)
 
 
+def escWinPath(s):
+    return '"' + s + '"'
+
+
 def runSetup(workDir, setupPath, mirrorUrl, extraPackages=[],
         interactive=False):
     notify("Running setup utility")
 
     # Need --no-admin to prevent re-spawning to elevate privileges (since
     # re-spawning has the side-effect of causing setup.exe to return early).
-    args = ["\"" + os.path.abspath(setupPath) + "\"",
+    args = [escWinPath(os.path.abspath(setupPath)),
             "--download",
             "--site=" + mirrorUrl,
-            "--local-package-dir=" + "\"" + os.path.abspath(workDir) + "\"",
-            "--root=" + "\"" + os.path.abspath(workDir) + "\"",
+            "--local-package-dir=" + escWinPath(os.path.abspath(workDir)),
+            "--root=" + escWinPath(os.path.abspath(workDir)),
             "--no-admin",
             "--no-verify",
             "--no-desktop",
